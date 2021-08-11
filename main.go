@@ -2,10 +2,12 @@ package main
 
 import (
 	"database/sql"
+	"net/http"
 
 	"github.com/BorisMaslovskii/cats/internal/handler"
 	"github.com/BorisMaslovskii/cats/internal/repository"
 	"github.com/BorisMaslovskii/cats/internal/service"
+	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 	log "github.com/sirupsen/logrus"
 )
@@ -23,5 +25,17 @@ func main() {
 
 	srv := service.NewCatService(repo)
 
-	h := handler.NewCat(srv)
+	cats := handler.NewCat(srv)
+
+	e := echo.New()
+	e.GET("/", func(c echo.Context) error {
+		return c.String(http.StatusOK, "Hello, this is a Cats service!")
+	})
+
+	e.GET("/cats/:id", cats.GetById)
+	e.GET("/cats", cats.GetAll)
+	e.POST("/users/:id", cats.Create)
+	e.DELETE("/users/:id", cats.Delete)
+
+	e.Logger.Fatal(e.Start(":1323"))
 }

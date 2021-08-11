@@ -13,7 +13,7 @@ func NewCat(srv *service.CatService) *Cat {
 	return &Cat{srv: srv}
 }
 
-func (h *Cat) Get(c echo.Context) error {
+func (h *Cat) GetById(c echo.Context) error {
 	return nil
 }
 
