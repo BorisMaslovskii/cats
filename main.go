@@ -20,6 +20,13 @@ func main() {
 		log.Fatalln(err)
 		return
 	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
 
 	repo := repository.NewRepo(db)
 
