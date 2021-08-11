@@ -1,4 +1,5 @@
-create table cats (
-    ID int not null,
-    NAME varchar(100) not null
+create table CATS (
+    ID serial primary key not null,
+    NAME varchar unique not null,
+    COLOR varchar not null,
 );
