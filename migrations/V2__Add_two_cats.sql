@@ -1,2 +1,2 @@
-insert into CATS (ID, NAME, COLOR) values (default, 'Dar', 'black');
-insert into CATS (ID, NAME, COLOR) values (default, 'Fil', 'black');
+insert into cats (id, name, color) values (default, 'Dar', 'black');
+insert into cats (id, name, color) values (default, 'Fil', 'black');

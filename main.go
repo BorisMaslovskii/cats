@@ -41,8 +41,9 @@ func main() {
 
 	e.GET("/cats/:id", cats.GetById)
 	e.GET("/cats", cats.GetAll)
-	e.POST("/users/:id", cats.Create)
-	e.DELETE("/users/:id", cats.Delete)
+	e.POST("/cats", cats.Create)
+	e.DELETE("/cats/:id", cats.Delete)
+	e.PUT("/cats/:id", cats.Update)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }

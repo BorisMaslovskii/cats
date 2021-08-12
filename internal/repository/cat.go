@@ -3,20 +3,21 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/BorisMaslovskii/cats/internal/model"
 	log "github.com/sirupsen/logrus"
 )
 
-type Repository struct {
+type CatRepository struct {
 	conn *sql.DB
 }
 
-func NewRepo(conn *sql.DB) *Repository {
-	return &Repository{conn: conn}
+func NewRepo(conn *sql.DB) *CatRepository {
+	return &CatRepository{conn: conn}
 }
 
-func (r *Repository) GetAllCats(ctx context.Context) ([]*model.Cat, error) {
+func (r *CatRepository) GetAll(ctx context.Context) ([]*model.Cat, error) {
 	rows, err := r.conn.QueryContext(ctx, "select ID, NAME, COLOR from CATS")
 	if err != nil {
 		return []*model.Cat{}, err
@@ -35,4 +36,42 @@ func (r *Repository) GetAllCats(ctx context.Context) ([]*model.Cat, error) {
 	}
 
 	return cats, nil
+}
+
+func (r *CatRepository) GetByID(ctx context.Context, id string) (*model.Cat, error) {
+	row := r.conn.QueryRowContext(ctx, "select id, name, color from cats where id = $1", id)
+	cat := &model.Cat{}
+	err := row.Scan(&cat.ID, &cat.Name, &cat.Color)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return cat, nil
+}
+
+func (r *CatRepository) Create(ctx context.Context, cat *model.Cat) (int, error) {
+	catID := 0
+	err := r.conn.QueryRowContext(ctx, "insert into cats(name, color) values ($1, $2) returning id;", cat.Name, cat.Color).Scan(&catID)
+	if err != nil {
+		return 0, err
+	}
+	return catID, nil
+}
+
+func (r *CatRepository) Delete(ctx context.Context, id string) error {
+	_, err := r.conn.ExecContext(ctx, "delete from cats where id = $1", id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *CatRepository) Update(ctx context.Context, id string, cat *model.Cat) error {
+	_, err := r.conn.ExecContext(ctx, "update cats set name = $1, color = $2 where id = $3", cat.Name, cat.Color, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
