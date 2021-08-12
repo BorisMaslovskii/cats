@@ -1,3 +1,4 @@
+// Package handler provides handler structs and methods for each service
 package handler
 
 import (
@@ -10,20 +11,24 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// CatRequest struct is used for binding the request content
 type CatRequest struct {
 	Name  string `form:"name" json:"name"`
 	Color string `form:"color" json:"color"`
 }
 
+// Cat handler struct provides handlers
 type Cat struct {
 	Srv *service.CatService
 }
 
+// NewCat func creates new Cat handler struct
 func NewCat(srv *service.CatService) *Cat {
 	return &Cat{Srv: srv}
 }
 
-func (h *Cat) GetById(c echo.Context) error {
+// GetByID handler func gets a cat by id
+func (h *Cat) GetByID(c echo.Context) error {
 	id := c.Param("id")
 	cat, err := h.Srv.GetByID(c.Request().Context(), id)
 	if err != nil {
@@ -33,6 +38,7 @@ func (h *Cat) GetById(c echo.Context) error {
 	return c.JSON(http.StatusOK, cat)
 }
 
+// GetAll handler func gets all cats
 func (h *Cat) GetAll(c echo.Context) error {
 	cats, err := h.Srv.GetAll(c.Request().Context())
 	if err != nil {
@@ -42,6 +48,7 @@ func (h *Cat) GetAll(c echo.Context) error {
 	return c.JSON(http.StatusOK, cats)
 }
 
+// Create handler func creates a new cat
 func (h *Cat) Create(c echo.Context) error {
 	catRec := &CatRequest{}
 	err := c.Bind(catRec)
@@ -61,6 +68,7 @@ func (h *Cat) Create(c echo.Context) error {
 	return c.String(http.StatusOK, "Created cat № "+fmt.Sprint(catID))
 }
 
+// Update handler func updates a cat
 func (h *Cat) Update(c echo.Context) error {
 	id := c.Param("id")
 	catRec := &CatRequest{}
@@ -81,6 +89,7 @@ func (h *Cat) Update(c echo.Context) error {
 	return c.String(http.StatusOK, "Updated cat № "+fmt.Sprint(id))
 }
 
+// Delete handler func deletes a cat
 func (h *Cat) Delete(c echo.Context) error {
 	id := c.Param("id")
 	err := h.Srv.Delete(c.Request().Context(), id)

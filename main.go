@@ -13,18 +13,22 @@ import (
 )
 
 func main() {
-
 	connStr := "user=postgres password=pgpass sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		log.Fatalln(err)
+		log.Errorf("sql Open %v", err)
 		return
 	}
-	defer db.Close()
+	defer func() {
+		errd := db.Close()
+		if err != nil {
+			log.Errorf("defer db Close %v", errd)
+		}
+	}()
 
 	err = db.Ping()
 	if err != nil {
-		log.Fatalln(err)
+		log.Errorf("db Ping %v", err)
 		return
 	}
 
@@ -39,7 +43,7 @@ func main() {
 		return c.String(http.StatusOK, "Hello, this is a Cats service!")
 	})
 
-	e.GET("/cats/:id", cats.GetById)
+	e.GET("/cats/:id", cats.GetByID)
 	e.GET("/cats", cats.GetAll)
 	e.POST("/cats", cats.Create)
 	e.DELETE("/cats/:id", cats.Delete)
