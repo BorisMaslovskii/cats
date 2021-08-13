@@ -10,21 +10,20 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// catRepository struct
+// catRepositoryMongo struct
 type catRepositoryMongo struct {
-	conn *mongo.Client
+	conn *mongo.Collection
 }
 
 // NewRepo func creates new catRepositoryMongo
-func NewRepoMongo(conn *mongo.Client) *catRepositoryMongo {
+func NewRepoMongo(conn *mongo.Collection) *catRepositoryMongo {
 	return &catRepositoryMongo{conn: conn}
 }
 
 // GetAll gets all cats from catRepositoryMongo
 func (r *catRepositoryMongo) GetAll(ctx context.Context) ([]*model.Cat, error) {
 	cats := make([]*model.Cat, 0)
-	collection := r.conn.Database("local").Collection("cats")
-	cursor, err := collection.Find(ctx, bson.M{})
+	cursor, err := r.conn.Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}
@@ -44,8 +43,7 @@ func (r *catRepositoryMongo) GetAll(ctx context.Context) ([]*model.Cat, error) {
 // GetByID func gets a cat by id from catRepositoryMongo
 func (r *catRepositoryMongo) GetByID(ctx context.Context, id uuid.UUID) (*model.Cat, error) {
 	cat := &model.Cat{}
-	collection := r.conn.Database("local").Collection("cats")
-	err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(cat)
+	err := r.conn.FindOne(ctx, bson.M{"_id": id}).Decode(cat)
 	if err != nil {
 		return nil, err
 	}
@@ -57,8 +55,7 @@ func (r *catRepositoryMongo) Create(ctx context.Context, cat *model.Cat) (uuid.U
 
 	uid := uuid.New()
 
-	collection := r.conn.Database("local").Collection("cats")
-	_, err := collection.InsertOne(ctx, bson.M{"_id": uid, "name": cat.Name, "color": cat.Color})
+	_, err := r.conn.InsertOne(ctx, bson.M{"_id": uid, "name": cat.Name, "color": cat.Color})
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -68,8 +65,7 @@ func (r *catRepositoryMongo) Create(ctx context.Context, cat *model.Cat) (uuid.U
 
 // Delete func deletes a cat from catRepositoryMongo
 func (r *catRepositoryMongo) Delete(ctx context.Context, id uuid.UUID) error {
-	collection := r.conn.Database("local").Collection("cats")
-	res, err := collection.DeleteOne(ctx, bson.M{"_id": id})
+	res, err := r.conn.DeleteOne(ctx, bson.M{"_id": id})
 	if err != nil {
 		return err
 	}
@@ -81,9 +77,8 @@ func (r *catRepositoryMongo) Delete(ctx context.Context, id uuid.UUID) error {
 
 // Update func updates a cat in catRepositoryMongo
 func (r *catRepositoryMongo) Update(ctx context.Context, id uuid.UUID, cat *model.Cat) error {
-	collection := r.conn.Database("local").Collection("cats")
 	update := bson.D{{"$set", bson.D{{"name", cat.Name}, {"color", cat.Color}}}}
-	res, err := collection.UpdateByID(ctx, id, update)
+	res, err := r.conn.UpdateByID(ctx, id, update)
 	if err != nil {
 		return err
 	}

@@ -49,7 +49,8 @@ func main() {
 			return
 		}
 
-		repo := repository.NewRepoMongo(client)
+		collection := client.Database("local").Collection("cats")
+		repo := repository.NewRepoMongo(collection)
 		srv = service.NewCatService(repo)
 
 		log.Info("mongo DB is used")
