@@ -7,7 +7,10 @@ import (
 	"github.com/BorisMaslovskii/cats/internal/model"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // catRepositoryMongo struct
@@ -15,8 +18,8 @@ type catRepositoryMongo struct {
 	conn *mongo.Collection
 }
 
-// NewRepo func creates new catRepositoryMongo
-func NewRepoMongo(conn *mongo.Collection) *catRepositoryMongo {
+// NewRepoMongo func creates new catRepositoryMongo
+func NewRepoMongo(conn *mongo.Collection) CatRepository {
 	return &catRepositoryMongo{conn: conn}
 }
 
@@ -27,7 +30,12 @@ func (r *catRepositoryMongo) GetAll(ctx context.Context) ([]*model.Cat, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(ctx)
+	defer func() {
+		err := cursor.Close(ctx)
+		if err != nil {
+			log.Errorf("cursor Close error %v", err)
+		}
+	}()
 
 	for cursor.Next(ctx) {
 		cat := &model.Cat{}
@@ -52,7 +60,6 @@ func (r *catRepositoryMongo) GetByID(ctx context.Context, id uuid.UUID) (*model.
 
 // Create func creates a new cat into catRepositoryMongo
 func (r *catRepositoryMongo) Create(ctx context.Context, cat *model.Cat) (uuid.UUID, error) {
-
 	uid := uuid.New()
 
 	_, err := r.conn.InsertOne(ctx, bson.M{"_id": uid, "name": cat.Name, "color": cat.Color})
@@ -77,7 +84,7 @@ func (r *catRepositoryMongo) Delete(ctx context.Context, id uuid.UUID) error {
 
 // Update func updates a cat in catRepositoryMongo
 func (r *catRepositoryMongo) Update(ctx context.Context, id uuid.UUID, cat *model.Cat) error {
-	update := bson.D{{"$set", bson.D{{"name", cat.Name}, {"color", cat.Color}}}}
+	update := bson.D{primitive.E{Key: "$set", Value: bson.D{primitive.E{Key: "name", Value: cat.Name}, primitive.E{Key: "color", Value: cat.Color}}}}
 	res, err := r.conn.UpdateByID(ctx, id, update)
 	if err != nil {
 		return err

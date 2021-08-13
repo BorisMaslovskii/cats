@@ -27,7 +27,6 @@ func main() {
 	}
 
 	if DBType == "mongo" {
-
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
@@ -54,9 +53,7 @@ func main() {
 		srv = service.NewCatService(repo)
 
 		log.Info("mongo DB is used")
-
 	} else {
-
 		connStr := "user=postgres password=pgpass sslmode=disable"
 		db, err := sql.Open("postgres", connStr)
 		if err != nil {

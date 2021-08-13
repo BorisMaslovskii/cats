@@ -11,6 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// CatRepository interface provides crud functions for the cat service not depending on the database type
 type CatRepository interface {
 	GetAll(ctx context.Context) ([]*model.Cat, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*model.Cat, error)
@@ -25,7 +26,7 @@ type catRepository struct {
 }
 
 // NewRepo func creates new catRepository
-func NewRepo(conn *sql.DB) *catRepository {
+func NewRepo(conn *sql.DB) CatRepository {
 	return &catRepository{conn: conn}
 }
 
