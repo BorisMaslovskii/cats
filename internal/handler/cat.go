@@ -7,6 +7,7 @@ import (
 
 	"github.com/BorisMaslovskii/cats/internal/model"
 	"github.com/BorisMaslovskii/cats/internal/service"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 )
@@ -29,11 +30,17 @@ func NewCat(srv *service.CatService) *Cat {
 
 // GetByID handler func gets a cat by id
 func (h *Cat) GetByID(c echo.Context) error {
-	id := c.Param("id")
+	StringID := c.Param("id")
+	id, err := uuid.Parse(StringID)
+	if err != nil {
+		log.Errorf("uuid FromBytes error %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
 	cat, err := h.Srv.GetByID(c.Request().Context(), id)
 	if err != nil {
-		log.Errorf("Cat GetById %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		log.Errorf("Cat GetById error %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, cat)
 }
@@ -42,8 +49,8 @@ func (h *Cat) GetByID(c echo.Context) error {
 func (h *Cat) GetAll(c echo.Context) error {
 	cats, err := h.Srv.GetAll(c.Request().Context())
 	if err != nil {
-		log.Errorf("Cat GetAll %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		log.Errorf("Cat GetAll error %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, cats)
 }
@@ -53,29 +60,35 @@ func (h *Cat) Create(c echo.Context) error {
 	catRec := &CatRequest{}
 	err := c.Bind(catRec)
 	if err != nil {
-		log.Errorf("Cat Create binding %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		log.Errorf("Cat Create binding error %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	cat := &model.Cat{
 		Name:  catRec.Name,
 		Color: catRec.Color,
 	}
-	catID, err := h.Srv.Create(c.Request().Context(), cat)
+	id, err := h.Srv.Create(c.Request().Context(), cat)
 	if err != nil {
-		log.Errorf("Cat Create %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		log.Errorf("Cat Create error %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	return c.String(http.StatusOK, "Created cat № "+fmt.Sprint(catID))
+	return c.String(http.StatusOK, "Created cat № "+id.String())
 }
 
 // Update handler func updates a cat
 func (h *Cat) Update(c echo.Context) error {
-	id := c.Param("id")
-	catRec := &CatRequest{}
-	err := c.Bind(catRec)
+	StringID := c.Param("id")
+	id, err := uuid.Parse(StringID)
 	if err != nil {
-		log.Errorf("Cat Update binding %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		log.Errorf("uuid FromBytes error %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	catRec := &CatRequest{}
+	err = c.Bind(catRec)
+	if err != nil {
+		log.Errorf("Cat Update binding error %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	cat := &model.Cat{
 		Name:  catRec.Name,
@@ -83,19 +96,25 @@ func (h *Cat) Update(c echo.Context) error {
 	}
 	err = h.Srv.Update(c.Request().Context(), id, cat)
 	if err != nil {
-		log.Errorf("Cat Update %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		log.Errorf("Cat Update error %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	return c.String(http.StatusOK, "Updated cat № "+fmt.Sprint(id))
 }
 
 // Delete handler func deletes a cat
 func (h *Cat) Delete(c echo.Context) error {
-	id := c.Param("id")
-	err := h.Srv.Delete(c.Request().Context(), id)
+	StringID := c.Param("id")
+	id, err := uuid.Parse(StringID)
 	if err != nil {
-		log.Errorf("Cat Delete %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		log.Errorf("uuid FromBytes error %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	return c.String(http.StatusOK, "Deleted cat № "+fmt.Sprint(id))
+
+	err = h.Srv.Delete(c.Request().Context(), id)
+	if err != nil {
+		log.Errorf("Cat Delete error %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return c.String(http.StatusOK, "Deleted cat № "+id.String())
 }

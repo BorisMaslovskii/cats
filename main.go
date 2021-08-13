@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/BorisMaslovskii/cats/internal/handler"
 	"github.com/BorisMaslovskii/cats/internal/repository"
@@ -10,31 +13,73 @@ import (
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 	log "github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 func main() {
-	connStr := "user=postgres password=pgpass sslmode=disable"
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		log.Errorf("sql Open %v", err)
-		return
+	var srv *service.CatService
+
+	DBType := ""
+	if len(os.Args) > 1 {
+		DBType = os.Args[1]
 	}
-	defer func() {
-		errd := db.Close()
+
+	if DBType == "mongo" {
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
 		if err != nil {
-			log.Errorf("defer db Close %v", errd)
+			log.Errorf("mongo connect error %v", err)
+			return
 		}
-	}()
 
-	err = db.Ping()
-	if err != nil {
-		log.Errorf("db Ping %v", err)
-		return
+		defer func() {
+			if err = client.Disconnect(ctx); err != nil {
+				panic(err)
+			}
+		}()
+
+		err = client.Ping(ctx, readpref.Primary())
+		if err != nil {
+			log.Errorf("mongo ping error %v", err)
+			return
+		}
+
+		repo := repository.NewRepoMongo(client)
+		srv = service.NewCatService(repo)
+
+		log.Info("mongo DB is used")
+
+	} else {
+
+		connStr := "user=postgres password=pgpass sslmode=disable"
+		db, err := sql.Open("postgres", connStr)
+		if err != nil {
+			log.Errorf("sql Open error %v", err)
+			return
+		}
+		defer func() {
+			errd := db.Close()
+			if errd != nil {
+				log.Errorf("defer db Close error %v", errd)
+			}
+		}()
+
+		err = db.Ping()
+		if err != nil {
+			log.Errorf("db Ping error %v", err)
+			return
+		}
+
+		repo := repository.NewRepo(db)
+		srv = service.NewCatService(repo)
+
+		log.Info("postgres DB is used")
 	}
-
-	repo := repository.NewRepo(db)
-
-	srv := service.NewCatService(repo)
 
 	cats := handler.NewCat(srv)
 
