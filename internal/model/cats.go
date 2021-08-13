@@ -11,3 +11,10 @@ type Cat struct {
 	Name  string
 	Color string
 }
+
+// User represents a single user that can use API
+type User struct {
+	ID       uuid.UUID `bson:"_id"`
+	Login    string
+	Password string
+}

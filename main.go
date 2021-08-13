@@ -21,11 +21,33 @@ import (
 func main() {
 	var srv *service.CatService
 
+	connStr := "user=postgres password=pgpass sslmode=disable"
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Errorf("sql Open error %v", err)
+		return
+	}
+	defer func() {
+		errd := db.Close()
+		if errd != nil {
+			log.Errorf("defer db Close error %v", errd)
+		}
+	}()
+
+	err = db.Ping()
+	if err != nil {
+		log.Errorf("db Ping error %v", err)
+		return
+	}
+
+	repoPostgres := repository.NewRepo(db)
+
 	DBType := ""
 	if len(os.Args) > 1 {
 		DBType = os.Args[1]
 	}
 
+	// Choose DB for cats service
 	if DBType == "mongo" {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
@@ -49,48 +71,40 @@ func main() {
 		}
 
 		collection := client.Database("local").Collection("cats")
-		repo := repository.NewRepoMongo(collection)
-		srv = service.NewCatService(repo)
+		repoMongo := repository.NewRepoMongo(collection)
+
+		srv = service.NewCatService(repoMongo)
 
 		log.Info("mongo DB is used")
 	} else {
-		connStr := "user=postgres password=pgpass sslmode=disable"
-		db, err := sql.Open("postgres", connStr)
-		if err != nil {
-			log.Errorf("sql Open error %v", err)
-			return
-		}
-		defer func() {
-			errd := db.Close()
-			if errd != nil {
-				log.Errorf("defer db Close error %v", errd)
-			}
-		}()
-
-		err = db.Ping()
-		if err != nil {
-			log.Errorf("db Ping error %v", err)
-			return
-		}
-
-		repo := repository.NewRepo(db)
-		srv = service.NewCatService(repo)
-
+		srv = service.NewCatService(repoPostgres)
 		log.Info("postgres DB is used")
 	}
 
 	cats := handler.NewCat(srv)
+
+	userRepoPostgres := repository.NewUserRepo(db)
+	usersSrv := service.NewUserService(userRepoPostgres)
+	users := handler.NewUser(usersSrv)
 
 	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, this is a Cats service!")
 	})
 
+	// Cats service
 	e.GET("/cats/:id", cats.GetByID)
 	e.GET("/cats", cats.GetAll)
 	e.POST("/cats", cats.Create)
 	e.DELETE("/cats/:id", cats.Delete)
 	e.PUT("/cats/:id", cats.Update)
+
+	// Users service
+	e.GET("/users/:id", users.GetByID)
+	e.GET("/users", users.GetAll)
+	e.POST("/users", users.Create)
+	e.DELETE("/users/:id", users.Delete)
+	e.PUT("/users/:id", users.Update)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }
