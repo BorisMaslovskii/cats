@@ -90,12 +90,14 @@ func main() {
 		log.Info("postgres DB is used")
 	}
 
-	cats := handler.NewCat(srv)
+	cats := handler.NewCatsHandler(srv)
 
 	userRepoPostgres := repository.NewUserRepo(db)
 	usersSrv := service.NewUserService(userRepoPostgres)
+	users := handler.NewUsersHandler(usersSrv)
+
 	authSrv := service.NewAuthService(userRepoPostgres, cfg)
-	users := handler.NewUser(usersSrv, authSrv)
+	auth := handler.NewAuthHandler(authSrv)
 
 	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
@@ -104,6 +106,10 @@ func main() {
 
 	// JWT
 	hmacJWTSecret := []byte(cfg.HmacJWTSecretString)
+
+	// Auth service
+	e.GET("/auth/login", auth.LogIn)
+	e.POST("/auth/login", auth.LogIn)
 
 	// Cats service
 	e.GET("/cats/:id", cats.GetByID, middleware.JWT(hmacJWTSecret))
@@ -118,8 +124,6 @@ func main() {
 	e.POST("/users", users.Create, middleware.JWT(hmacJWTSecret))
 	e.DELETE("/users/:id", users.Delete, middleware.JWT(hmacJWTSecret))
 	e.PUT("/users/:id", users.Update, middleware.JWT(hmacJWTSecret))
-	e.GET("/users/login", users.LogIn)
-	e.POST("/users/login", users.LogIn)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }

@@ -18,18 +18,18 @@ type CatRequest struct {
 	Color string `form:"color" json:"color"`
 }
 
-// Cat handler struct provides handlers
-type Cat struct {
+// CatsHandler handler struct provides handlers
+type CatsHandler struct {
 	Srv *service.CatService
 }
 
-// NewCat func creates new Cat handler struct
-func NewCat(srv *service.CatService) *Cat {
-	return &Cat{Srv: srv}
+// NewCatsHandler func creates new Cat handler struct
+func NewCatsHandler(srv *service.CatService) *CatsHandler {
+	return &CatsHandler{Srv: srv}
 }
 
 // GetByID handler func gets a cat by id
-func (h *Cat) GetByID(c echo.Context) error {
+func (h *CatsHandler) GetByID(c echo.Context) error {
 	StringID := c.Param("id")
 	id, err := uuid.Parse(StringID)
 	if err != nil {
@@ -46,7 +46,7 @@ func (h *Cat) GetByID(c echo.Context) error {
 }
 
 // GetAll handler func gets all cats
-func (h *Cat) GetAll(c echo.Context) error {
+func (h *CatsHandler) GetAll(c echo.Context) error {
 	cats, err := h.Srv.GetAll(c.Request().Context())
 	if err != nil {
 		log.Errorf("Cat GetAll error %v", err)
@@ -56,7 +56,7 @@ func (h *Cat) GetAll(c echo.Context) error {
 }
 
 // Create handler func creates a new cat
-func (h *Cat) Create(c echo.Context) error {
+func (h *CatsHandler) Create(c echo.Context) error {
 	catRec := &CatRequest{}
 	err := c.Bind(catRec)
 	if err != nil {
@@ -76,7 +76,7 @@ func (h *Cat) Create(c echo.Context) error {
 }
 
 // Update handler func updates a cat
-func (h *Cat) Update(c echo.Context) error {
+func (h *CatsHandler) Update(c echo.Context) error {
 	StringID := c.Param("id")
 	id, err := uuid.Parse(StringID)
 	if err != nil {
@@ -103,7 +103,7 @@ func (h *Cat) Update(c echo.Context) error {
 }
 
 // Delete handler func deletes a cat
-func (h *Cat) Delete(c echo.Context) error {
+func (h *CatsHandler) Delete(c echo.Context) error {
 	StringID := c.Param("id")
 	id, err := uuid.Parse(StringID)
 	if err != nil {

@@ -18,22 +18,20 @@ type UserRequest struct {
 	Password string `query:"password" form:"password" json:"password"`
 }
 
-// User handler struct provides handlers
-type User struct {
+// UsersHandler handler struct provides handlers
+type UsersHandler struct {
 	UserSrv *service.UserService
-	AuthSrv *service.AuthService
 }
 
-// NewUser func creates new User handler struct
-func NewUser(userSrv *service.UserService, authSrv *service.AuthService) *User {
-	return &User{
+// NewUsersHandler func creates new User handler struct
+func NewUsersHandler(userSrv *service.UserService) *UsersHandler {
+	return &UsersHandler{
 		UserSrv: userSrv,
-		AuthSrv: authSrv,
 	}
 }
 
 // GetByID handler func gets a user by id
-func (h *User) GetByID(c echo.Context) error {
+func (h *UsersHandler) GetByID(c echo.Context) error {
 	StringID := c.Param("id")
 	id, err := uuid.Parse(StringID)
 	if err != nil {
@@ -50,7 +48,7 @@ func (h *User) GetByID(c echo.Context) error {
 }
 
 // GetAll handler func gets all users
-func (h *User) GetAll(c echo.Context) error {
+func (h *UsersHandler) GetAll(c echo.Context) error {
 	users, err := h.UserSrv.GetAll(c.Request().Context())
 	if err != nil {
 		log.Errorf("User GetAll error %v", err)
@@ -60,7 +58,7 @@ func (h *User) GetAll(c echo.Context) error {
 }
 
 // Create handler func creates a new user
-func (h *User) Create(c echo.Context) error {
+func (h *UsersHandler) Create(c echo.Context) error {
 	userRec := &UserRequest{}
 	err := c.Bind(userRec)
 	if err != nil {
@@ -89,7 +87,7 @@ func (h *User) Create(c echo.Context) error {
 }
 
 // Update handler func updates a user
-func (h *User) Update(c echo.Context) error {
+func (h *UsersHandler) Update(c echo.Context) error {
 	StringID := c.Param("id")
 	id, err := uuid.Parse(StringID)
 	if err != nil {
@@ -116,7 +114,7 @@ func (h *User) Update(c echo.Context) error {
 }
 
 // Delete handler func deletes a user
-func (h *User) Delete(c echo.Context) error {
+func (h *UsersHandler) Delete(c echo.Context) error {
 	StringID := c.Param("id")
 	id, err := uuid.Parse(StringID)
 	if err != nil {
@@ -130,26 +128,4 @@ func (h *User) Delete(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	return c.String(http.StatusOK, "Deleted user № "+id.String())
-}
-
-// LogIn handler func loggs in a user
-func (h *User) LogIn(c echo.Context) error {
-	userRec := &UserRequest{}
-	err := c.Bind(userRec)
-	if err != nil {
-		log.Errorf("User LogIn binding error %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-	reqUser := &model.User{
-		Login:    userRec.Login,
-		Password: userRec.Password,
-	}
-
-	tokenSignedString, err := h.AuthSrv.LogIn(c.Request().Context(), reqUser)
-	if err != nil {
-		log.Errorf("User LogIn error %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
-	return c.String(http.StatusOK, tokenSignedString)
 }
