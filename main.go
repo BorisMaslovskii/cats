@@ -11,12 +11,18 @@ import (
 	"github.com/BorisMaslovskii/cats/internal/repository"
 	"github.com/BorisMaslovskii/cats/internal/service"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	_ "github.com/lib/pq"
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
+
+// For HMAC signing method, the key can be any []byte. It is recommended to generate
+// a key using crypto/rand or something equivalent. You need the same key for signing
+// and validating.
+var hmacSampleSecret []byte
 
 func main() {
 	var srv *service.CatService
@@ -92,19 +98,24 @@ func main() {
 		return c.String(http.StatusOK, "Hello, this is a Cats service!")
 	})
 
+	// JWT
+	hmacSampleSecret = []byte("testSecret")
+
 	// Cats service
-	e.GET("/cats/:id", cats.GetByID)
-	e.GET("/cats", cats.GetAll)
-	e.POST("/cats", cats.Create)
-	e.DELETE("/cats/:id", cats.Delete)
-	e.PUT("/cats/:id", cats.Update)
+	e.GET("/cats/:id", cats.GetByID, middleware.JWT(hmacSampleSecret))
+	e.GET("/cats", cats.GetAll, middleware.JWT(hmacSampleSecret))
+	e.POST("/cats", cats.Create, middleware.JWT(hmacSampleSecret))
+	e.DELETE("/cats/:id", cats.Delete, middleware.JWT(hmacSampleSecret))
+	e.PUT("/cats/:id", cats.Update, middleware.JWT(hmacSampleSecret))
 
 	// Users service
-	e.GET("/users/:id", users.GetByID)
-	e.GET("/users", users.GetAll)
-	e.POST("/users", users.Create)
-	e.DELETE("/users/:id", users.Delete)
-	e.PUT("/users/:id", users.Update)
+	e.GET("/users/:id", users.GetByID, middleware.JWT(hmacSampleSecret))
+	e.GET("/users", users.GetAll, middleware.JWT(hmacSampleSecret))
+	e.POST("/users", users.Create, middleware.JWT(hmacSampleSecret))
+	e.DELETE("/users/:id", users.Delete, middleware.JWT(hmacSampleSecret))
+	e.PUT("/users/:id", users.Update, middleware.JWT(hmacSampleSecret))
+	e.GET("/users/login", users.LogIn)
+	e.POST("/users/login", users.LogIn)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }

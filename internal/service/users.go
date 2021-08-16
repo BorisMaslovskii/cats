@@ -42,3 +42,8 @@ func (c *UserService) Delete(ctx context.Context, id uuid.UUID) error {
 func (c *UserService) Update(ctx context.Context, id uuid.UUID, cat *model.User) error {
 	return c.repo.Update(ctx, id, cat)
 }
+
+// Update func updates a cat
+func (c *UserService) LogIn(ctx context.Context, reqUser *model.User) (*model.User, error) {
+	return c.repo.LogIn(ctx, reqUser)
+}
