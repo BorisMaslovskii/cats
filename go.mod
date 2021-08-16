@@ -3,6 +3,7 @@ module github.com/BorisMaslovskii/cats
 go 1.16
 
 require (
+	github.com/caarlos0/env/v6 v6.6.2
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/labstack/echo/v4 v4.5.0

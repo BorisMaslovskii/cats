@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/BorisMaslovskii/cats/internal/config"
 	"github.com/BorisMaslovskii/cats/internal/handler"
 	"github.com/BorisMaslovskii/cats/internal/repository"
 	"github.com/BorisMaslovskii/cats/internal/service"
@@ -19,15 +21,16 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-// For HMAC signing method, the key can be any []byte. It is recommended to generate
-// a key using crypto/rand or something equivalent. You need the same key for signing
-// and validating.
-var hmacSampleSecret []byte
-
 func main() {
+	// we create srv at the start to be able to choose between postgres and mongo repository for the CatService
 	var srv *service.CatService
 
-	connStr := "user=postgres password=pgpass sslmode=disable"
+	cfg, err := config.NewConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	connStr := fmt.Sprintf("user=%v password=%v sslmode=disable", cfg.PostgresUser, cfg.PostgresPassword)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Errorf("sql Open error %v", err)
@@ -91,7 +94,8 @@ func main() {
 
 	userRepoPostgres := repository.NewUserRepo(db)
 	usersSrv := service.NewUserService(userRepoPostgres)
-	users := handler.NewUser(usersSrv)
+	authSrv := service.NewAuthService(userRepoPostgres, cfg)
+	users := handler.NewUser(usersSrv, authSrv)
 
 	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
@@ -99,21 +103,21 @@ func main() {
 	})
 
 	// JWT
-	hmacSampleSecret = []byte("testSecret")
+	hmacJWTSecret := []byte(cfg.HmacJWTSecretString)
 
 	// Cats service
-	e.GET("/cats/:id", cats.GetByID, middleware.JWT(hmacSampleSecret))
-	e.GET("/cats", cats.GetAll, middleware.JWT(hmacSampleSecret))
-	e.POST("/cats", cats.Create, middleware.JWT(hmacSampleSecret))
-	e.DELETE("/cats/:id", cats.Delete, middleware.JWT(hmacSampleSecret))
-	e.PUT("/cats/:id", cats.Update, middleware.JWT(hmacSampleSecret))
+	e.GET("/cats/:id", cats.GetByID, middleware.JWT(hmacJWTSecret))
+	e.GET("/cats", cats.GetAll, middleware.JWT(hmacJWTSecret))
+	e.POST("/cats", cats.Create, middleware.JWT(hmacJWTSecret))
+	e.DELETE("/cats/:id", cats.Delete, middleware.JWT(hmacJWTSecret))
+	e.PUT("/cats/:id", cats.Update, middleware.JWT(hmacJWTSecret))
 
 	// Users service
-	e.GET("/users/:id", users.GetByID, middleware.JWT(hmacSampleSecret))
-	e.GET("/users", users.GetAll, middleware.JWT(hmacSampleSecret))
-	e.POST("/users", users.Create, middleware.JWT(hmacSampleSecret))
-	e.DELETE("/users/:id", users.Delete, middleware.JWT(hmacSampleSecret))
-	e.PUT("/users/:id", users.Update, middleware.JWT(hmacSampleSecret))
+	e.GET("/users/:id", users.GetByID, middleware.JWT(hmacJWTSecret))
+	e.GET("/users", users.GetAll, middleware.JWT(hmacJWTSecret))
+	e.POST("/users", users.Create, middleware.JWT(hmacJWTSecret))
+	e.DELETE("/users/:id", users.Delete, middleware.JWT(hmacJWTSecret))
+	e.PUT("/users/:id", users.Update, middleware.JWT(hmacJWTSecret))
 	e.GET("/users/login", users.LogIn)
 	e.POST("/users/login", users.LogIn)
 

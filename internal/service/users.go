@@ -8,42 +8,37 @@ import (
 	"github.com/google/uuid"
 )
 
-// CatService struct
+// UserService struct
 type UserService struct {
 	repo repository.UserRepository
 }
 
-// NewCatService func creates new CatService
+// NewUserService func creates new UserService
 func NewUserService(rep repository.UserRepository) *UserService {
 	return &UserService{repo: rep}
 }
 
-// GetAll func gets all cats
-func (c *UserService) GetAll(ctx context.Context) ([]*model.User, error) {
-	return c.repo.GetAll(ctx)
+// GetAll func gets all users
+func (s *UserService) GetAll(ctx context.Context) ([]*model.User, error) {
+	return s.repo.GetAll(ctx)
 }
 
-// GetByID func gets a cat by id
-func (c *UserService) GetByID(ctx context.Context, id uuid.UUID) (*model.User, error) {
-	return c.repo.GetByID(ctx, id)
+// GetByID func gets a user by id
+func (s *UserService) GetByID(ctx context.Context, id uuid.UUID) (*model.User, error) {
+	return s.repo.GetByID(ctx, id)
 }
 
-// Create func creates a new cat
-func (c *UserService) Create(ctx context.Context, cat *model.User) (uuid.UUID, error) {
-	return c.repo.Create(ctx, cat)
+// Create func creates a new user
+func (s *UserService) Create(ctx context.Context, cat *model.User) (uuid.UUID, error) {
+	return s.repo.Create(ctx, cat)
 }
 
-// Delete func deletes a cat
-func (c *UserService) Delete(ctx context.Context, id uuid.UUID) error {
-	return c.repo.Delete(ctx, id)
+// Delete func deletes a user
+func (s *UserService) Delete(ctx context.Context, id uuid.UUID) error {
+	return s.repo.Delete(ctx, id)
 }
 
-// Update func updates a cat
-func (c *UserService) Update(ctx context.Context, id uuid.UUID, cat *model.User) error {
-	return c.repo.Update(ctx, id, cat)
-}
-
-// Update func updates a cat
-func (c *UserService) LogIn(ctx context.Context, reqUser *model.User) (*model.User, error) {
-	return c.repo.LogIn(ctx, reqUser)
+// Update func updates a user
+func (s *UserService) Update(ctx context.Context, id uuid.UUID, cat *model.User) error {
+	return s.repo.Update(ctx, id, cat)
 }

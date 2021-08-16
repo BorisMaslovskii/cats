@@ -17,7 +17,7 @@ type UserRepository interface {
 	Create(ctx context.Context, user *model.User) (uuid.UUID, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 	Update(ctx context.Context, id uuid.UUID, user *model.User) error
-	LogIn(ctx context.Context, reqUser *model.User) (*model.User, error)
+	GetByLogin(ctx context.Context, reqUser *model.User) (*model.User, error)
 }
 
 // userRepository struct
@@ -105,7 +105,7 @@ func (r *userRepositoryPostgres) Update(ctx context.Context, id uuid.UUID, user 
 }
 
 // Update func updates a user in userRepositoryPostgres
-func (r *userRepositoryPostgres) LogIn(ctx context.Context, reqUser *model.User) (*model.User, error) {
+func (r *userRepositoryPostgres) GetByLogin(ctx context.Context, reqUser *model.User) (*model.User, error) {
 	row := r.conn.QueryRowContext(ctx, "select id, login, password from users where login = $1", reqUser.Login)
 	user := &model.User{}
 	err := row.Scan(&user.ID, &user.Login, &user.Password)
