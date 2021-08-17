@@ -22,77 +22,46 @@ import (
 )
 
 func main() {
-	// we create srv at the start to be able to choose between postgres and mongo repository for the CatService
-	var srv *service.CatService
+	// we create catsSrv at the start to be able to choose between postgres and mongo repository for the CatService
+	var catsSrv *service.CatService
 
 	cfg, err := config.NewConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	connStr := fmt.Sprintf("user=%v password=%v sslmode=disable", cfg.PostgresUser, cfg.PostgresPassword)
-	db, err := sql.Open("postgres", connStr)
+	dbPostgres, err := CreatePostgresDB(cfg)
 	if err != nil {
-		log.Errorf("sql Open error %v", err)
+		log.Errorf("CreatePostgresDB error %v", err)
 		return
 	}
-	defer func() {
-		errd := db.Close()
-		if errd != nil {
-			log.Errorf("defer db Close error %v", errd)
-		}
-	}()
+	repoPostgres := repository.NewRepo(dbPostgres)
 
-	err = db.Ping()
-	if err != nil {
-		log.Errorf("db Ping error %v", err)
-		return
-	}
-
-	repoPostgres := repository.NewRepo(db)
-
-	DBType := ""
+	dbType := ""
 	if len(os.Args) > 1 {
-		DBType = os.Args[1]
+		dbType = os.Args[1]
 	}
 
 	// Choose DB for cats service
-	if DBType == "mongo" {
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	if dbType == "mongo" {
+		mongoCollection, err := CreateMongoCollection(cfg)
 		if err != nil {
-			log.Errorf("mongo connect error %v", err)
+			log.Errorf("CreateMongoCollection error %v", err)
 			return
 		}
+		repoMongo := repository.NewRepoMongo(mongoCollection)
 
-		defer func() {
-			if err = client.Disconnect(ctx); err != nil {
-				panic(err)
-			}
-		}()
-
-		err = client.Ping(ctx, readpref.Primary())
-		if err != nil {
-			log.Errorf("mongo ping error %v", err)
-			return
-		}
-
-		collection := client.Database("local").Collection("cats")
-		repoMongo := repository.NewRepoMongo(collection)
-
-		srv = service.NewCatService(repoMongo)
+		catsSrv = service.NewCatService(repoMongo)
 
 		log.Info("mongo DB is used")
 	} else {
-		srv = service.NewCatService(repoPostgres)
+		catsSrv = service.NewCatService(repoPostgres)
 		log.Info("postgres DB is used")
 	}
 
-	cats := handler.NewCatsHandler(srv)
+	cats := handler.NewCatsHandler(catsSrv)
 
-	userRepoPostgres := repository.NewUserRepo(db)
+	userRepoPostgres := repository.NewUserRepo(dbPostgres)
 	usersSrv := service.NewUserService(userRepoPostgres)
 	users := handler.NewUsersHandler(usersSrv)
 
@@ -118,17 +87,47 @@ func main() {
 	e.DELETE("/cats/:id", cats.Delete, middleware.JWT(hmacJWTSecret))
 	e.PUT("/cats/:id", cats.Update, middleware.JWT(hmacJWTSecret))
 
-	config := middleware.JWTConfig{
-		//Claims:     &service.JwtCustomClaims{},
-		SigningKey: hmacJWTSecret,
-	}
-
 	// Users service
-	e.GET("/users/:id", users.GetByID, middleware.JWTWithConfig(config), auth.JWTCheckAdmin)
-	e.GET("/users", users.GetAll, middleware.JWTWithConfig(config), auth.JWTCheckAdmin)
-	e.POST("/users", users.Create, middleware.JWTWithConfig(config), auth.JWTCheckAdmin)
-	e.DELETE("/users/:id", users.Delete, middleware.JWTWithConfig(config), auth.JWTCheckAdmin)
-	e.PUT("/users/:id", users.Update, middleware.JWTWithConfig(config), auth.JWTCheckAdmin)
+	e.GET("/users/:id", users.GetByID, middleware.JWT(hmacJWTSecret), auth.JWTCheckAdmin)
+	e.GET("/users", users.GetAll, middleware.JWT(hmacJWTSecret), auth.JWTCheckAdmin)
+	e.POST("/users", users.Create, middleware.JWT(hmacJWTSecret), auth.JWTCheckAdmin)
+	e.DELETE("/users/:id", users.Delete, middleware.JWT(hmacJWTSecret), auth.JWTCheckAdmin)
+	e.PUT("/users/:id", users.Update, middleware.JWT(hmacJWTSecret), auth.JWTCheckAdmin)
 
 	e.Logger.Fatal(e.Start(":1323"))
+}
+
+// CreatePostgresDB func to simplify the main
+func CreatePostgresDB(cfg *config.Config) (*sql.DB, error) {
+	connStr := fmt.Sprintf("user=%v password=%v sslmode=disable", cfg.PostgresUser, cfg.PostgresPassword)
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
+	return db, nil
+}
+
+// CreateMongoCollection func to simplify the main
+func CreateMongoCollection(cfg *config.Config) (*mongo.Collection, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.MongoURI))
+	if err != nil {
+		return nil, err
+	}
+
+	err = client.Ping(ctx, readpref.Primary())
+	if err != nil {
+		return nil, err
+	}
+
+	collection := client.Database(cfg.MongoDatabase).Collection(cfg.MongoCollection)
+
+	return collection, nil
 }

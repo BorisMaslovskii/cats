@@ -1,3 +1,4 @@
+//nolint:dupl // For now, we want a more readable code than optimized
 // Package handler provides handler structs and methods for each service
 package handler
 

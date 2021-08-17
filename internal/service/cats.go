@@ -1,3 +1,4 @@
+//nolint:dupl // For now, we want a more readable code than optimized
 // Package service provides usage methods for each service not depending on the type of repository
 package service
 

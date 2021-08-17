@@ -10,12 +10,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// UsersHandler handler struct provides handlers
+// AuthHandler handler struct provides handlers
 type AuthHandler struct {
 	AuthSrv *service.AuthService
 }
 
-// NewUsersHandler func creates new User handler struct
+// NewAuthHandler func creates new User handler struct
 func NewAuthHandler(authSrv *service.AuthService) *AuthHandler {
 	return &AuthHandler{
 		AuthSrv: authSrv,

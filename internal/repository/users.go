@@ -20,12 +20,12 @@ type UserRepository interface {
 	GetByLogin(ctx context.Context, reqUser *model.User) (*model.User, error)
 }
 
-// userRepository struct
+// userRepositoryPostgres struct
 type userRepositoryPostgres struct {
 	conn *sql.DB
 }
 
-// NewRepo func creates new UserRepository
+// NewUserRepo func creates new UserRepository
 func NewUserRepo(conn *sql.DB) UserRepository {
 	return &userRepositoryPostgres{conn: conn}
 }

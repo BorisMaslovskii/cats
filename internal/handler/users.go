@@ -1,3 +1,5 @@
+// Package handler comment
+//nolint:dupl // For now, we want a more readable code than optimized
 package handler
 
 import (
