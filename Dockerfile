@@ -23,6 +23,7 @@ FROM gcr.io/distroless/base-debian10
 
 ENV HTTP_PORT 1323
 ENV JWT_SECRET JWTSampleSecret
+ENV PG_HOST host.docker.internal
 ENV PG_USER postgres
 ENV PG_PASS pgpass
 ENV MONGO_URI mongodb://localhost:27017

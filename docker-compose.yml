@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  
+  web:
+    build: .
+    ports:
+      - "1323:1323"
+    environment:
+      - PG_HOST=postgres
+      - PG_PORT=5432
+      - PG_USER=postgres
+      - PG_PASS=pgpass
+
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=pgpass
