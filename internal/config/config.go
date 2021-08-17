@@ -12,6 +12,8 @@ import (
 type Config struct {
 	HTTPPort            string `env:"HTTP_PORT" envDefault:"1323"`
 	HmacJWTSecretString string `env:"JWT_SECRET,notEmpty"`
+	PostgresHost        string `env:"PG_HOST" envDefault:"host.docker.internal"`
+	PostgresPort        string `env:"PG_PORT" envDefault:"5432"`
 	PostgresUser        string `env:"PG_USER,required"`
 	PostgresPassword    string `env:"PG_PASS,required"`
 	MongoURI            string `env:"MONGO_URI"`

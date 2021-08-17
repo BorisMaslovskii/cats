@@ -99,7 +99,7 @@ func main() {
 
 // CreatePostgresDB func to simplify the main
 func CreatePostgresDB(cfg *config.Config) (*sql.DB, error) {
-	connStr := fmt.Sprintf("user=%v password=%v sslmode=disable", cfg.PostgresUser, cfg.PostgresPassword)
+	connStr := fmt.Sprintf("host= %v port=%v user=%v password=%v sslmode=disable", cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresUser, cfg.PostgresPassword)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, err
