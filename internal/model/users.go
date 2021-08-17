@@ -9,4 +9,5 @@ type User struct {
 	ID       uuid.UUID `bson:"_id"`
 	Login    string
 	Password string
+	Admin    bool
 }

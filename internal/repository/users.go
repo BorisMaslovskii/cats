@@ -32,7 +32,7 @@ func NewUserRepo(conn *sql.DB) UserRepository {
 
 // GetAll gets all users from userRepositoryPostgres
 func (r *userRepositoryPostgres) GetAll(ctx context.Context) ([]*model.User, error) {
-	rows, err := r.conn.QueryContext(ctx, "select id, login, password from users")
+	rows, err := r.conn.QueryContext(ctx, "select id, login, password, admin from users")
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (r *userRepositoryPostgres) GetAll(ctx context.Context) ([]*model.User, err
 
 	for rows.Next() {
 		user := model.User{}
-		err := rows.Scan(&user.ID, &user.Login, &user.Password)
+		err := rows.Scan(&user.ID, &user.Login, &user.Password, &user.Admin)
 		if err != nil {
 			log.Errorf("users GetAll rows.Scan %v", err)
 			continue
@@ -62,9 +62,9 @@ func (r *userRepositoryPostgres) GetAll(ctx context.Context) ([]*model.User, err
 
 // GetByID func gets a user by id from userRepositoryPostgres
 func (r *userRepositoryPostgres) GetByID(ctx context.Context, id uuid.UUID) (*model.User, error) {
-	row := r.conn.QueryRowContext(ctx, "select id, login, password from users where id = $1", id)
+	row := r.conn.QueryRowContext(ctx, "select id, login, password, admin from users where id = $1", id)
 	user := &model.User{}
-	err := row.Scan(&user.ID, &user.Login, &user.Password)
+	err := row.Scan(&user.ID, &user.Login, &user.Password, &user.Admin)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -78,7 +78,7 @@ func (r *userRepositoryPostgres) GetByID(ctx context.Context, id uuid.UUID) (*mo
 func (r *userRepositoryPostgres) Create(ctx context.Context, user *model.User) (uuid.UUID, error) {
 	id := uuid.New()
 
-	_, err := r.conn.ExecContext(ctx, "insert into users(id, login, password) values ($1, $2, $3)", id, user.Login, user.Password)
+	_, err := r.conn.ExecContext(ctx, "insert into users(id, login, password, admin) values ($1, $2, $3, $4)", id, user.Login, user.Password, user.Admin)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -97,7 +97,7 @@ func (r *userRepositoryPostgres) Delete(ctx context.Context, id uuid.UUID) error
 
 // Update func updates a user in userRepositoryPostgres
 func (r *userRepositoryPostgres) Update(ctx context.Context, id uuid.UUID, user *model.User) error {
-	_, err := r.conn.ExecContext(ctx, "update users set login = $1, password = $2 where id = $3", user.Login, user.Password, id)
+	_, err := r.conn.ExecContext(ctx, "update users set login = $1, password = $2, admin = $3 where id = $4", user.Login, user.Password, user.Admin, id)
 	if err != nil {
 		return err
 	}
@@ -106,9 +106,9 @@ func (r *userRepositoryPostgres) Update(ctx context.Context, id uuid.UUID, user 
 
 // Update func updates a user in userRepositoryPostgres
 func (r *userRepositoryPostgres) GetByLogin(ctx context.Context, reqUser *model.User) (*model.User, error) {
-	row := r.conn.QueryRowContext(ctx, "select id, login, password from users where login = $1", reqUser.Login)
+	row := r.conn.QueryRowContext(ctx, "select id, login, password, admin from users where login = $1", reqUser.Login)
 	user := &model.User{}
-	err := row.Scan(&user.ID, &user.Login, &user.Password)
+	err := row.Scan(&user.ID, &user.Login, &user.Password, &user.Admin)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, err

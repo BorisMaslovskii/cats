@@ -16,6 +16,7 @@ import (
 type UserRequest struct {
 	Login    string `query:"login" form:"login" json:"login"`
 	Password string `query:"password" form:"password" json:"password"`
+	Admin    bool   `query:"admin" form:"admin" json:"admin"`
 }
 
 // UsersHandler handler struct provides handlers
@@ -76,6 +77,7 @@ func (h *UsersHandler) Create(c echo.Context) error {
 	user := &model.User{
 		Login:    userRec.Login,
 		Password: string(hashedPassword),
+		Admin:    userRec.Admin,
 	}
 
 	id, err := h.UserSrv.Create(c.Request().Context(), user)
@@ -104,6 +106,7 @@ func (h *UsersHandler) Update(c echo.Context) error {
 	user := &model.User{
 		Login:    userRec.Login,
 		Password: userRec.Password,
+		Admin:    userRec.Admin,
 	}
 	err = h.UserSrv.Update(c.Request().Context(), id, user)
 	if err != nil {

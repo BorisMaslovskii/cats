@@ -11,6 +11,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// jwtCustomClaims are custom claims extending default ones.
+// See https://github.com/golang-jwt/jwt for more examples
+type JwtCustomClaims struct {
+	Admin bool `json:"admin"`
+	jwt.StandardClaims
+}
+
 // UserService struct
 type AuthService struct {
 	repo repository.UserRepository
@@ -42,10 +49,13 @@ func (s *AuthService) LogIn(ctx context.Context, reqUser *model.User) (tokenSign
 	// you would like it to contain.
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
-		jwt.StandardClaims{
-			Subject:   user.Login,
-			Issuer:    "cats-project",
-			ExpiresAt: time.Now().Add(30 * time.Minute).Unix(),
+		&JwtCustomClaims{
+			user.Admin,
+			jwt.StandardClaims{
+				Subject:   user.Login,
+				Issuer:    "cats-project",
+				ExpiresAt: time.Now().Add(30 * time.Minute).Unix(),
+			},
 		},
 	)
 

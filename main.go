@@ -118,12 +118,17 @@ func main() {
 	e.DELETE("/cats/:id", cats.Delete, middleware.JWT(hmacJWTSecret))
 	e.PUT("/cats/:id", cats.Update, middleware.JWT(hmacJWTSecret))
 
+	config := middleware.JWTConfig{
+		//Claims:     &service.JwtCustomClaims{},
+		SigningKey: hmacJWTSecret,
+	}
+
 	// Users service
-	e.GET("/users/:id", users.GetByID, middleware.JWT(hmacJWTSecret))
-	e.GET("/users", users.GetAll, middleware.JWT(hmacJWTSecret))
-	e.POST("/users", users.Create, middleware.JWT(hmacJWTSecret))
-	e.DELETE("/users/:id", users.Delete, middleware.JWT(hmacJWTSecret))
-	e.PUT("/users/:id", users.Update, middleware.JWT(hmacJWTSecret))
+	e.GET("/users/:id", users.GetByID, middleware.JWTWithConfig(config), auth.JWTCheckAdmin)
+	e.GET("/users", users.GetAll, middleware.JWTWithConfig(config), auth.JWTCheckAdmin)
+	e.POST("/users", users.Create, middleware.JWTWithConfig(config), auth.JWTCheckAdmin)
+	e.DELETE("/users/:id", users.Delete, middleware.JWTWithConfig(config), auth.JWTCheckAdmin)
+	e.PUT("/users/:id", users.Update, middleware.JWTWithConfig(config), auth.JWTCheckAdmin)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }
