@@ -94,7 +94,7 @@ func main() {
 	e.DELETE("/users/:id", users.Delete, middleware.JWT(hmacJWTSecret), auth.JWTCheckAdmin)
 	e.PUT("/users/:id", users.Update, middleware.JWT(hmacJWTSecret), auth.JWTCheckAdmin)
 
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(":" + cfg.HTTPPort))
 }
 
 // CreatePostgresDB func to simplify the main

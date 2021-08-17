@@ -10,6 +10,7 @@ import (
 
 // Config provides access for the environment variables
 type Config struct {
+	HTTPPort            string `env:"HTTP_PORT" envDefault:"1323"`
 	HmacJWTSecretString string `env:"JWT_SECRET,notEmpty"`
 	PostgresUser        string `env:"PG_USER,required"`
 	PostgresPassword    string `env:"PG_PASS,required"`
