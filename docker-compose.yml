@@ -10,6 +10,8 @@ services:
       - PG_PORT=5432
       - PG_USER=postgres
       - PG_PASS=pgpass
+    depends_on:
+      - "postgres"
 
   postgres:
     image: postgres
