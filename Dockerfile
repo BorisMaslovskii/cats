@@ -10,7 +10,7 @@ COPY go.mod ./
 COPY go.sum ./
 RUN go mod download
 
-ADD internal ./
+COPY internal ./internal
 COPY *.go ./
 
 RUN go build -o /cats
