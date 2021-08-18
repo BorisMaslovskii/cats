@@ -18,6 +18,19 @@ services:
       - "postgres"
       - "mongo"
 
+  flyway:
+    build:
+      context: ./
+      dockerfile: ./flyway/Dockerfile
+    depends_on:
+      - "postgres"
+      - "mongo"
+    command: -url=jdbc:postgresql://postgres:5432/ -user=postgres -password=pgpass migrate
+    environment:
+      - WAIT_HOSTS=postgres:5432
+    volumes:
+      - ./migrations:/flyway/sql
+
   postgres:
     image: postgres
     environment:
