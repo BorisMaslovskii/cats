@@ -7,9 +7,8 @@ services:
       - "1323:1323"
     environment:
       - PG_HOST=postgres
-      - PG_PORT=5432
-      - PG_USER=postgres
-      - PG_PASS=pgpass
+      - MONGO_HOST=mongo
+      - CATSDBTYPE=postgres # postgres or mongo
     depends_on:
       - "postgres"
 
@@ -18,10 +17,5 @@ services:
     environment:
       - POSTGRES_PASSWORD=pgpass
 
-  postgres:
-    image: postgres
-
-  flyway:
-    image: flyway/flyway:latest
-    environment:
-      - FLYWAY_URL=jdbc:postgresql://postgres:5432/
+  mongo:
+    image: mongo

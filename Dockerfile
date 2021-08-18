@@ -21,9 +21,10 @@ RUN go build -o /cats
 
 FROM gcr.io/distroless/base-debian10
 
-ENV CATSDBTYPE postgres
 ENV PG_HOST host.docker.internal
 ENV MONGO_HOST host.docker.internal
+# CATSDBTYPE could be postgres or mongo
+ENV CATSDBTYPE postgres
 
 WORKDIR /
 
