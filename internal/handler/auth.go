@@ -24,7 +24,7 @@ func NewAuthHandler(authSrv *service.AuthService) *AuthHandler {
 
 // LogIn handler func loggs in a user
 func (h *AuthHandler) LogIn(c echo.Context) error {
-	userRec := &UserRequest{}
+	userRec := &model.UserRequest{}
 	err := c.Bind(userRec)
 	if err != nil {
 		log.Errorf("User LogIn binding error %v", err)

@@ -11,3 +11,10 @@ type User struct {
 	Password string
 	Admin    bool
 }
+
+// UserRequest struct is used for binding the request content
+type UserRequest struct {
+	Login    string `query:"login" form:"login" json:"login"`
+	Password string `query:"password" form:"password" json:"password"`
+	Admin    bool   `query:"admin" form:"admin" json:"admin"`
+}

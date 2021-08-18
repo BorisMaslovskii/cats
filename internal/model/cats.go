@@ -11,3 +11,9 @@ type Cat struct {
 	Name  string
 	Color string
 }
+
+// CatRequest struct is used for binding the request content
+type CatRequest struct {
+	Name  string `form:"name" json:"name"`
+	Color string `form:"color" json:"color"`
+}

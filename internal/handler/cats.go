@@ -13,12 +13,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// CatRequest struct is used for binding the request content
-type CatRequest struct {
-	Name  string `form:"name" json:"name"`
-	Color string `form:"color" json:"color"`
-}
-
 // CatsHandler handler struct provides handlers
 type CatsHandler struct {
 	Srv *service.CatService
@@ -58,7 +52,7 @@ func (h *CatsHandler) GetAll(c echo.Context) error {
 
 // Create handler func creates a new cat
 func (h *CatsHandler) Create(c echo.Context) error {
-	catRec := &CatRequest{}
+	catRec := &model.CatRequest{}
 	err := c.Bind(catRec)
 	if err != nil {
 		log.Errorf("Cat Create binding error %v", err)
@@ -85,7 +79,7 @@ func (h *CatsHandler) Update(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	catRec := &CatRequest{}
+	catRec := &model.CatRequest{}
 	err = c.Bind(catRec)
 	if err != nil {
 		log.Errorf("Cat Update binding error %v", err)

@@ -14,13 +14,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// UserRequest struct is used for binding the request content
-type UserRequest struct {
-	Login    string `query:"login" form:"login" json:"login"`
-	Password string `query:"password" form:"password" json:"password"`
-	Admin    bool   `query:"admin" form:"admin" json:"admin"`
-}
-
 // UsersHandler handler struct provides handlers
 type UsersHandler struct {
 	UserSrv *service.UserService
