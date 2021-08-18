@@ -17,3 +17,11 @@ services:
     image: postgres
     environment:
       - POSTGRES_PASSWORD=pgpass
+
+  postgres:
+    image: postgres
+
+  flyway:
+    image: flyway/flyway:latest
+    environment:
+      - FLYWAY_URL=jdbc:postgresql://postgres:5432/

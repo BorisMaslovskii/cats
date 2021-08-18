@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/BorisMaslovskii/cats/internal/config"
@@ -39,13 +38,8 @@ func main() {
 	}
 	repoPostgres := repository.NewRepo(dbPostgres)
 
-	dbType := ""
-	if len(os.Args) > 1 {
-		dbType = os.Args[1]
-	}
-
 	// Choose DB for cats service
-	if dbType == "mongo" {
+	if cfg.CatsDBType == "mongo" {
 		mongoCollection, err := CreateMongoCollection(cfg)
 		if err != nil {
 			log.Errorf("CreateMongoCollection error %v", err)
@@ -119,7 +113,7 @@ func CreateMongoCollection(cfg *config.Config) (*mongo.Collection, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.MongoURI))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(fmt.Sprintf("mongodb://%v:%v", cfg.MongoHost, cfg.MongoPort)))
 	if err != nil {
 		return nil, err
 	}
