@@ -30,6 +30,10 @@ func (h *AuthHandler) LogIn(c echo.Context) error {
 		log.Errorf("User LogIn binding error %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	if err = c.Validate(userRec); err != nil {
+		log.Errorf("User LogIn validation error %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 	user := &model.User{
 		Login:    userRec.Login,
 		Password: userRec.Password,

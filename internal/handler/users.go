@@ -55,10 +55,15 @@ func (h *UsersHandler) GetAll(c echo.Context) error {
 
 // Create handler func creates a new user
 func (h *UsersHandler) Create(c echo.Context) error {
-	userRec := &UserRequest{}
+	userRec := &model.UserRequest{}
 	err := c.Bind(userRec)
 	if err != nil {
 		log.Errorf("User Create binding error %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	// validation
+	if err = c.Validate(userRec); err != nil {
+		log.Errorf("User LogIn validation error %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
@@ -92,12 +97,18 @@ func (h *UsersHandler) Update(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	userRec := &UserRequest{}
+	userRec := &model.UserRequest{}
 	err = c.Bind(userRec)
 	if err != nil {
 		log.Errorf("User Update binding error %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	// validation
+	if err = c.Validate(userRec); err != nil {
+		log.Errorf("User LogIn validation error %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
 	user := &model.User{
 		Login:    userRec.Login,
 		Password: userRec.Password,

@@ -11,6 +11,7 @@ import (
 	"github.com/BorisMaslovskii/cats/internal/handler"
 	"github.com/BorisMaslovskii/cats/internal/repository"
 	"github.com/BorisMaslovskii/cats/internal/service"
+	"github.com/BorisMaslovskii/cats/internal/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	_ "github.com/lib/pq"
@@ -63,6 +64,7 @@ func main() {
 	auth := handler.NewAuthHandler(authSrv)
 
 	e := echo.New()
+	e.Validator = validator.NewCustomValidator()
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, this is a Cats service!")
 	})

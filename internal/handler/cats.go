@@ -58,6 +58,12 @@ func (h *CatsHandler) Create(c echo.Context) error {
 		log.Errorf("Cat Create binding error %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	// validation
+	if err = c.Validate(catRec); err != nil {
+		log.Errorf("User LogIn validation error %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
 	cat := &model.Cat{
 		Name:  catRec.Name,
 		Color: catRec.Color,
@@ -85,6 +91,12 @@ func (h *CatsHandler) Update(c echo.Context) error {
 		log.Errorf("Cat Update binding error %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	// validation
+	if err = c.Validate(catRec); err != nil {
+		log.Errorf("User LogIn validation error %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
 	cat := &model.Cat{
 		Name:  catRec.Name,
 		Color: catRec.Color,
