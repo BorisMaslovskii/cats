@@ -1,0 +1,2 @@
+insert into users (id, login, password, admin) values ('4dd1f99e-bd72-4b62-83ba-f3df7af238ea', 'admin', '$2a$12$eoZkrIzHCOlX81VBjuZMwez4KxccPa7NJINMd14bhvXRtCG0rEa56', TRUE);
+insert into users (id, login, password, admin) values ('913eb70d-b1d8-4027-9ae2-384ef2e1bef9', 'user', '$2a$12$jarnvzIiTAl1vBnbi0xgfuLz35mFNgthmFX1.f1Jxl2TQhcdq3yH.', FALSE);
