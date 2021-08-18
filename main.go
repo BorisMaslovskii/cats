@@ -29,8 +29,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	time.Sleep(2 * time.Second)
-
 	dbPostgres, err := CreatePostgresDB(cfg)
 	if err != nil {
 		log.Errorf("CreatePostgresDB error %v", err)
