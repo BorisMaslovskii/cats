@@ -62,7 +62,8 @@ func (r *userRepositoryPostgres) GetAll(ctx context.Context) ([]*model.User, err
 
 // GetByID func gets a user by id from userRepositoryPostgres
 func (r *userRepositoryPostgres) GetByID(ctx context.Context, id uuid.UUID) (*model.User, error) {
-	row := r.conn.QueryRowContext(ctx, "select id, login, password, admin from users where id = $1", id)
+	//row := r.conn.QueryRowContext(ctx, "select id, login, password, admin from users where id = $1", id)
+	row := r.conn.QueryRowContext(ctx, "select id, login, password, admin from GetUserByID($1);", id)
 	user := &model.User{}
 	err := row.Scan(&user.ID, &user.Login, &user.Password, &user.Admin)
 	if err != nil {
