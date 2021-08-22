@@ -5,9 +5,10 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/BorisMaslovskii/cats/internal/model"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/BorisMaslovskii/cats/internal/model"
 )
 
 // UserRepository interface provides crud functions for the user service not depending on the database type
@@ -62,7 +63,6 @@ func (r *userRepositoryPostgres) GetAll(ctx context.Context) ([]*model.User, err
 
 // GetByID func gets a user by id from userRepositoryPostgres
 func (r *userRepositoryPostgres) GetByID(ctx context.Context, id uuid.UUID) (*model.User, error) {
-	//row := r.conn.QueryRowContext(ctx, "select id, login, password, admin from users where id = $1", id)
 	row := r.conn.QueryRowContext(ctx, "select id, login, password, admin from GetUserByID($1);", id)
 	user := &model.User{}
 	err := row.Scan(&user.ID, &user.Login, &user.Password, &user.Admin)

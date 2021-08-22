@@ -12,7 +12,7 @@ import (
 type Config struct {
 	HTTPPort            string `env:"HTTP_PORT" envDefault:"1323"`
 	HmacJWTSecretString string `env:"JWT_SECRET" envDefault:"JWTSampleSecret"`
-	CatsDBType          string `env:"CATSDBTYPE" envDefault:"postgres"` //postgres or mongo
+	CatsDBType          string `env:"CATSDBTYPE" envDefault:"postgres"` // postgres or mongo
 	PostgresHost        string `env:"PG_HOST" envDefault:"127.0.0.1"`
 	PostgresPort        string `env:"PG_PORT" envDefault:"5432"`
 	PostgresUser        string `env:"PG_USER" envDefault:"postgres"`
