@@ -7,11 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/BorisMaslovskii/cats/internal/config"
-	"github.com/BorisMaslovskii/cats/internal/handler"
-	"github.com/BorisMaslovskii/cats/internal/repository"
-	"github.com/BorisMaslovskii/cats/internal/service"
-	"github.com/BorisMaslovskii/cats/internal/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	_ "github.com/lib/pq"
@@ -19,6 +14,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+
+	"github.com/BorisMaslovskii/cats/internal/config"
+	"github.com/BorisMaslovskii/cats/internal/handler"
+	"github.com/BorisMaslovskii/cats/internal/repository"
+	"github.com/BorisMaslovskii/cats/internal/service"
+	"github.com/BorisMaslovskii/cats/internal/validator"
 )
 
 func main() {
@@ -66,7 +67,7 @@ func main() {
 	e := echo.New()
 	e.Validator = validator.NewCustomValidator()
 	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, this is a Cats service!")
+		return c.String(http.StatusOK, "Hello, this is a Cats service 2!")
 	})
 
 	// JWT
