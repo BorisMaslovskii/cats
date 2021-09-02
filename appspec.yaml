@@ -7,5 +7,5 @@ Resources:
         LoadBalancerInfo:
           ContainerName: "cats"
           ContainerPort: 80
-Hooks:
-  - AfterAllowTestTraffic: "arn:aws:lambda:us-east-1:196061510339:function:AfterAllowTestTraffic"
+#Hooks:
+#  - AfterAllowTestTraffic: "arn:aws:lambda:us-east-1:196061510339:function:AfterAllowTestTraffic"
