@@ -67,7 +67,7 @@ func main() {
 	e := echo.New()
 	e.Validator = validator.NewCustomValidator()
 	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, this is a Cats service 2!")
+		return c.String(http.StatusOK, "Hello, this is a Cats service 3!")
 	})
 
 	// JWT
