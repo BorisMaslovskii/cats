@@ -2,7 +2,7 @@
 ## Build
 ##
 
-FROM golang:1.16-alpine AS build
+FROM 196061510339.dkr.ecr.us-east-1.amazonaws.com/golang-alpine:latest AS build
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ RUN go build -o /cats
 ## Deploy
 ##
 
-FROM alpine:latest
+FROM 196061510339.dkr.ecr.us-east-1.amazonaws.com/alpine:latest
 
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /wait
 RUN chmod +x /wait
