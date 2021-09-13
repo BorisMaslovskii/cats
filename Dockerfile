@@ -2,6 +2,8 @@
 ## Build
 ##
 
+RUN docker login --username azurecatsacr2 --password NLX9PL/VIbxtMtNfTMj81LOi4woH52nr
+
 FROM azurecatsacr2.azurecr.io/golangalpine:latest AS build
 
 WORKDIR /app
