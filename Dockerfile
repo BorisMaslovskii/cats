@@ -2,8 +2,6 @@
 ## Build
 ##
 
-RUN docker login azurecatsacr2.azurecr.io
-
 FROM azurecatsacr2.azurecr.io/golangalpine:latest AS build
 
 WORKDIR /app
