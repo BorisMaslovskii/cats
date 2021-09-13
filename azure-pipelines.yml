@@ -13,7 +13,7 @@ variables:
   # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: '83d95ab5-58d4-4597-9430-374317785661'
   imageRepository: 'cats'
-  containerRegistry: 'azurecatsacr.azurecr.io'
+  containerRegistry: 'azurecatsacr2.azurecr.io'
   dockerfilePath: '**/Dockerfile'
   tag: '$(Build.BuildId)'
   imagePullSecret: 'azurecatsacr385862a8-auth'
@@ -53,7 +53,7 @@ stages:
     displayName: Deploy
     pool:
       vmImage: $(vmImageName)
-    environment: 'BorisMaslovskiicats-2569.default'
+    environment: 'BorisMaslovskiicats.default'
     strategy:
       runOnce:
         deploy:
