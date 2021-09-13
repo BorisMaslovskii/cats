@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: cats 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cats
+  template:
+    metadata:
+      labels:
+        app: cats 
+    spec:
+      containers:
+        - name: cats 
+          image: azurecatsacr.azurecr.io/cats
+          ports:
+          - containerPort: 80
