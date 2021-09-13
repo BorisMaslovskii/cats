@@ -2,7 +2,7 @@
 ## Build
 ##
 
-RUN docker login --username azurecatsacr2 --password NLX9PL/VIbxtMtNfTMj81LOi4woH52nr
+RUN docker login --username azurecatsacr2 --password NLX9PL/VIbxtMtNfTMj81LOi4woH52nr azurecatsacr2.azurecr.io
 
 FROM azurecatsacr2.azurecr.io/golangalpine:latest AS build
 
