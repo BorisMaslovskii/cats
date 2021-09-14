@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: cats 
-          image: azurecatsacr.azurecr.io/cats
+          image: azurecatsacr3.azurecr.io/cats
           ports:
           - containerPort: 80
