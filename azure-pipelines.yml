@@ -75,5 +75,5 @@ stages:
               imagePullSecrets: |
                 $(imagePullSecret)
               containers: |
-                $(containerRegistry)/$(imageRepository):$(tag)
+                azurecatsacr3.azurecr.io/$(imageRepository):$(tag)
 
